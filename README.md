@@ -8,7 +8,9 @@ This Application measure the performance of HTTP protocol running in Zorlertia Z
  
 ## Structure:
 The Application is purely client Side, written in HTML, Javascript, Jquery. and can be lauched by browser.
+
 Hence no server is required! isn't it amazing ? wow :)
+
 The application also make cross-origin requests, thats only possible with server. so look in how can we do so with client only !!!
 
 
