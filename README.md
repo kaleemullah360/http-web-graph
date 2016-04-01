@@ -14,10 +14,10 @@ The application also make cross-origin requests, thats only possible with server
 
 ## Requirements:
 
-	1. for plotting graph it needs [RikshawMaster](http://code.shutterstock.com/rickshaw/) pluggins
-	2. require [jquery](https://jquery.com/download/)
-	3. [Zolertia Z1](http://zolertia.io/z1) Motes
-	4. [Contiki OS](http://www.contiki-os.org/)
+1. for plotting graph it needs [RikshawMaster](http://code.shutterstock.com/rickshaw/) pluggins
+2. require [jquery](https://jquery.com/download/)
+3. [Zolertia Z1](http://zolertia.io/z1) Motes
+4. [Contiki OS](http://www.contiki-os.org/)
 
 
 ## Contribution:
