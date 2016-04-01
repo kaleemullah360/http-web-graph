@@ -1,0 +1,363 @@
+<!doctype html>
+<head>
+<title>Real Time Graph | HTTP</title>
+	<link type="text/css" rel="stylesheet" href="css/jquery-ui.css">
+	<link type="text/css" rel="stylesheet" href="src/css/graph.css">
+	<link type="text/css" rel="stylesheet" href="src/css/detail.css">
+	<link type="text/css" rel="stylesheet" href="src/css/legend.css">
+	<link type="text/css" rel="stylesheet" href="css/extensions.css?v=2">
+
+	<script src="vendor/d3.v3.js"></script>
+
+	<script type="text/javascript" src="js/jquery-2.2.0.min.js"></script>
+	<script>
+		jQuery.noConflict();
+	</script>
+	
+	<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+
+	<script src="src/js/Rickshaw.js"></script>
+	<script src="src/js/Rickshaw.Class.js"></script>
+	<script src="src/js/Rickshaw.Compat.ClassList.js"></script>
+	<script src="src/js/Rickshaw.Graph.js"></script>
+	<script src="src/js/Rickshaw.Graph.Renderer.js"></script>
+	<script src="src/js/Rickshaw.Graph.Renderer.Area.js"></script>
+	<script src="src/js/Rickshaw.Graph.Renderer.Line.js"></script>
+	<script src="src/js/Rickshaw.Graph.Renderer.Bar.js"></script>
+	<script src="src/js/Rickshaw.Graph.Renderer.ScatterPlot.js"></script>
+	<script src="src/js/Rickshaw.Graph.Renderer.Stack.js"></script>
+	<script src="src/js/Rickshaw.Graph.RangeSlider.js"></script>
+	<script src="src/js/Rickshaw.Graph.RangeSlider.Preview.js"></script>
+	<script src="src/js/Rickshaw.Graph.HoverDetail.js"></script>
+	<script src="src/js/Rickshaw.Graph.Annotate.js"></script>
+	<script src="src/js/Rickshaw.Graph.Legend.js"></script>
+	<script src="src/js/Rickshaw.Graph.Axis.Time.js"></script>
+	<script src="src/js/Rickshaw.Graph.Behavior.Series.Toggle.js"></script>
+	<script src="src/js/Rickshaw.Graph.Behavior.Series.Order.js"></script>
+	<script src="src/js/Rickshaw.Graph.Behavior.Series.Highlight.js"></script>
+	<script src="src/js/Rickshaw.Graph.Smoother.js"></script>
+	<script src="src/js/Rickshaw.Fixtures.Time.js"></script>
+	<script src="src/js/Rickshaw.Fixtures.Time.Local.js"></script>
+	<script src="src/js/Rickshaw.Fixtures.Number.js"></script>
+	<script src="src/js/Rickshaw.Fixtures.RandomData.js"></script>
+	<script src="src/js/Rickshaw.Fixtures.Color.js"></script>
+	<script src="src/js/Rickshaw.Color.Palette.js"></script>
+	<script src="src/js/Rickshaw.Graph.Axis.Y.js"></script>
+
+	<script src="js/extensions.js"></script>
+
+</head>
+
+<body>
+	<div id="content">
+
+		<form id="side_panel">
+			<section>
+			<h3>Real Time Graph for HTTP Protocol Performance Evaluation</h3>
+				<label>IPV6 Address:</label>
+				<input type="text" value="aaaa::c30c:0:0:2" id="mote-url"></input>
+				<label>Request Interval (milliseconds):</label>
+				<input type="number" value="5000" id="mote-interval"></input>
+				<button type="button" autofocus onclick="javascript: execute_graph()">Start</button>
+			</section>
+			<section><div id="legend"></div></section>
+			<section>
+				<div id="renderer_form" class="toggler">
+					<input type="radio" name="renderer" id="area" value="area" checked>
+					<label for="area">area</label>
+					<input type="radio" name="renderer" id="bar" value="bar">
+					<label for="bar">bar</label>
+					<input type="radio" name="renderer" id="line" value="line">
+					<label for="line">line</label>
+					<input type="radio" name="renderer" id="scatter" value="scatterplot">
+					<label for="scatter">scatter</label>
+				</div>
+			</section>
+			<section>
+				<div id="offset_form">
+					<label for="stack">
+						<input type="radio" name="offset" id="stack" value="zero" checked>
+						<span>stack</span>
+					</label>
+					<label for="stream">
+						<input type="radio" name="offset" id="stream" value="wiggle">
+						<span>stream</span>
+					</label>
+					<label for="pct">
+						<input type="radio" name="offset" id="pct" value="expand">
+						<span>pct</span>
+					</label>
+					<label for="value">
+						<input type="radio" name="offset" id="value" value="value">
+						<span>value</span>
+					</label>
+				</div>
+				<div id="interpolation_form">
+					<label for="cardinal">
+						<input type="radio" name="interpolation" id="cardinal" value="cardinal" checked>
+						<span>cardinal</span>
+					</label>
+					<label for="linear">
+						<input type="radio" name="interpolation" id="linear" value="linear">
+						<span>linear</span>
+					</label>
+					<label for="step">
+						<input type="radio" name="interpolation" id="step" value="step-after">
+						<span>step</span>
+					</label>
+				</div>
+			</section>
+			<section>
+				<h6>Smoothing</h6>
+				<div id="smoother"></div>
+			</section>
+			<section>
+				<label>Filename:</label>
+				<input id="inputFileNameToSaveAs" value="mote-data-logs.txt"></input>
+				<button type="button" onclick="saveTextAsFile()">Save Text to File</button>
+								<label>Select a File to Load:</label>
+				<input type="file" id="fileToLoad">
+				<button type="button" onclick="loadFileAsText()">Load Selected File</button>
+			</section>
+		</form>
+
+		<div id="chart_container">
+			<div id="chart"></div>
+			<div id="timeline"></div>
+			<div id="preview"></div>
+			<hr>
+			<label>File Writing</label>
+			<div><textarea id="inputTextToSave" style="width:100%;height:60px"></textarea></div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+
+var seriesData = [[{ x: 0, y: 0}], [{ x: 0, y: 0}], [{ x: 0, y: 0 }], [{ x: 0, y: 0 }]];
+var palette = new Rickshaw.Color.Palette( { scheme: 'classic9' } );
+
+// instantiate our graph!
+
+var graph = new Rickshaw.Graph( {
+	element: document.getElementById("chart"),
+	width: 1024,
+	height: 500,
+	renderer: 'area',
+	stroke: true,
+	preserve: true,
+	series: [
+	{
+		color: palette.color(),
+		data: seriesData[0],
+		name: 'Temperature'
+	},{
+		color: palette.color(),
+		data: seriesData[1],
+		name: 'Humidity'
+	},{
+		color: palette.color(),
+		data: seriesData[2],
+		name: 'Battery'
+	},{
+		color: palette.color(),
+		data: seriesData[3],
+		name: 'Status'
+	}
+	]
+} );
+
+graph.render();
+
+var preview = new Rickshaw.Graph.RangeSlider( {
+	graph: graph,
+	element: document.getElementById('preview'),
+} );
+
+var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+	graph: graph,
+	xFormatter: function(x) {
+		return new Date(x * 1000).toString();
+	}
+} );
+
+var annotator = new Rickshaw.Graph.Annotate( {
+	graph: graph,
+	element: document.getElementById('timeline')
+} );
+
+var legend = new Rickshaw.Graph.Legend( {
+	graph: graph,
+	element: document.getElementById('legend')
+
+} );
+
+var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
+	graph: graph,
+	legend: legend
+} );
+
+var order = new Rickshaw.Graph.Behavior.Series.Order( {
+	graph: graph,
+	legend: legend
+} );
+
+var highlighter = new Rickshaw.Graph.Behavior.Series.Highlight( {
+	graph: graph,
+	legend: legend
+} );
+
+var smoother = new Rickshaw.Graph.Smoother( {
+	graph: graph,
+	element: document.querySelector('#smoother')
+} );
+
+var ticksTreatment = 'glow';
+
+var xAxis = new Rickshaw.Graph.Axis.Time( {
+	graph: graph,
+	ticksTreatment: ticksTreatment,
+	timeFixture: new Rickshaw.Fixtures.Time.Local()
+} );
+
+xAxis.render();
+
+var yAxis = new Rickshaw.Graph.Axis.Y( {
+	graph: graph,
+	tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+	ticksTreatment: ticksTreatment
+} );
+
+yAxis.render();
+
+
+var controls = new RenderControls( {
+	element: document.querySelector('form'),
+	graph: graph
+} );
+
+// add some data every so often
+
+var messages = [
+"Changed home page welcome message",
+"Minified JS and CSS",
+"Changed button color from blue to green",
+"Refactored SQL query to use indexed columns",
+"Added additional logging for debugging",
+"Fixed typo",
+"Rewrite conditional logic for clarity",
+"Added documentation for new methods"
+];
+
+var getLatestData = function(){
+
+	var script_id = null;
+	var script = document.createElement('script');
+	script.setAttribute('type', 'text/javascript');
+	script.setAttribute('src', url);
+	script.setAttribute('id', 'script_id');
+
+	script_id = document.getElementById('script_id');
+	if(script_id){
+		document.getElementsByTagName('head')[0].removeChild(script_id);
+	}
+
+        // Insert <script> into DOM
+        document.getElementsByTagName('head')[0].appendChild(script);
+
+    };
+    var counter = 0;
+    function cb(newData) {
+    	seriesData[0].push( { x: newData[0]['x'], y: newData[0]['y'] } );
+    	seriesData[1].push( { x: newData[1]['x'], y: newData[1]['y'] } );
+    	seriesData[2].push( { x: newData[2]['x'], y: newData[2]['y'] } );
+    	seriesData[3].push( { x: newData[3]['x'], y: newData[3]['y'] } );
+    	graph.update();
+var text = "ID: " + counter++ + "  Status:  " + newData[3]['y'] + "  Uptime:  " + newData[0]['x'] + "  Temperature:  " + newData[0]['y'] + "  Humidity:  " + newData[1]['y'] + "  Battery:  " + newData[2]['y'] + "\n";
+    	addText(text);
+    	//console.log(newData[0]['x'], newData[1]['x'], newData[2]['x'], newData[0]['y'], newData[1]['y'], newData[2]['y']);
+    }
+
+    x = 3;
+    function execute_graph(){
+
+    	miliseconds = document.getElementById('mote-interval').value;
+    	ip = document.getElementById('mote-url').value;
+    	url = 'http://[' + ip + ']/data.json';
+    	setInterval( function() {
+
+    		graph.update();
+    		getLatestData();
+
+    	}, miliseconds );
+    };
+    
+    function addAnnotation(force) {
+    	if (messages.length > 0 && (force || Math.random() >= 0.95)) {
+    		annotator.add(seriesData[0][seriesData[0].length-1].x, messages.shift());
+    		annotator.update();
+    	}
+    }
+
+    addAnnotation(true);
+
+    setTimeout( function() { setInterval( addAnnotation, 6000 ) }, 6000 );
+
+    var previewXAxis = new Rickshaw.Graph.Axis.Time({
+    	graph: preview.graph,
+    	timeFixture: new Rickshaw.Fixtures.Time.Local(),
+    	ticksTreatment: ticksTreatment
+    });
+
+    previewXAxis.render();
+
+function saveTextAsFile()
+{
+	var textToWrite = document.getElementById("inputTextToSave").value;
+	var textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
+	var fileNameToSaveAs = document.getElementById("inputFileNameToSaveAs").value;
+
+	var downloadLink = document.createElement("a");
+	downloadLink.download = fileNameToSaveAs;
+	downloadLink.innerHTML = "Download File";
+	if (window.webkitURL != null)
+	{
+		// Chrome allows the link to be clicked
+		// without actually adding it to the DOM.
+		downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+	}
+	else
+	{
+		// Firefox requires the link to be added to the DOM
+		// before it can be clicked.
+		downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+		downloadLink.onclick = destroyClickedElement;
+		downloadLink.style.display = "none";
+		document.body.appendChild(downloadLink);
+	}
+
+	downloadLink.click();
+}
+
+function destroyClickedElement(event)
+{
+	document.body.removeChild(event.target);
+}
+
+function loadFileAsText()
+{	
+	var fileToLoad = document.getElementById("fileToLoad").files[0];
+
+	var fileReader = new FileReader();
+	fileReader.onload = function(fileLoadedEvent) 
+	{
+		var textFromFileLoaded = fileLoadedEvent.target.result;
+		document.getElementById("inputTextToSave").value = textFromFileLoaded;
+	};
+	fileReader.readAsText(fileToLoad, "UTF-8");
+}
+function addText(text) {
+    document.getElementById("inputTextToSave").value += text
+}
+</script>
+
+</body>
