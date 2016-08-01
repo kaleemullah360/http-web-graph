@@ -24,3 +24,5 @@ The application also make cross-origin requests, thats only possible with server
 
 ## Contribution:
 The application is only for educational purpose. you're free to clone and continue the development. Enjoy the spirit of Ubuntu !
+
+to learn more about cross-origin polocy
