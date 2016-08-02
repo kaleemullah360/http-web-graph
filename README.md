@@ -25,4 +25,4 @@ The application also make cross-origin requests, thats only possible with server
 ## Contribution:
 The application is only for educational purpose. you're free to clone and continue the development. Enjoy the spirit of Ubuntu !
 
-learn more about cross-origin policy [Cross-origin resource sharing (CORS)](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing	)
+Learn more about cross-origin policy [Cross-origin resource sharing (CORS)](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
