@@ -5,6 +5,9 @@ Performance Evaluation of HTTP protocol in WSN devices using Contiki OS.
 ## Introduction:
 This Application measure the performance of HTTP protocol running in Zorlertia Z1 mote wiht Contiki Operating System.
 
+## Usage:
+
+Launch the application in browser. note the mote address and input it. make 100 request with specified time interval.
  
 ## Structure:
 The Application is purely client Side, written in HTML, Javascript, Jquery. and can be lauched by browser.
